@@ -892,17 +892,25 @@ json
                 .NotContain(e => e.Code.Contains("#r"));
         }
 
-        [Fact]
-        public async Task When_SubmitCode_command_adds_packages_to_csharp_kernel_then_PackageAdded_event_is_raised()
+        [Theory]
+        [InlineData(Language.CSharp)]
+        [InlineData(Language.FSharp)]             // #r nuget for F#
+        public async Task When_SubmitCode_command_adds_packages_to_csharp_kernel_then_PackageAdded_event_is_raised(Language language)
         {
-            var kernel = new CompositeKernel
+
+            var kernel = language switch
             {
-                new CSharpKernel().UseNugetDirective()
+                Language.FSharp => CreateKernel(language),
+                Language.CSharp =>new CSharpKernel().UseNugetDirective()
             };
 
-            var command = new SubmitCode("#r \"nuget:Microsoft.Extensions.Logging, 2.2.0\" \nMicrosoft.Extensions.Logging.ILogger logger = null;");
+            var source = language switch
+            {
+                Language.FSharp => "#r \"nuget:Microsoft.Extensions.Logging, version=2.2.0\"\nlet logger = Unchecked.defaultof<Microsoft.Extensions.Logging.ILogger>",
+                Language.CSharp => "#r \"nuget:Microsoft.Extensions.Logging, 2.2.0\"\nMicrosoft.Extensions.Logging.ILogger logger = null;"
+            };
 
-            var result = await kernel.SendAsync(command);
+            var result = await kernel.SendAsync(new SubmitCode(source));
 
             using var events = result.KernelEvents.ToSubscribedList();
 
