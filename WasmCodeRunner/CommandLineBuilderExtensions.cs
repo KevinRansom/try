@@ -33,6 +33,20 @@ namespace MLS.WasmCodeRunner
             return builder;
         }
 
+        public static CommandLineBuilder ResponseFile<T>(
+            this CommandLineBuilder builder,
+            ResponseFileHandling responseFileHandling)
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            builder.ResponseFileHandling = responseFileHandling;
+
+            return builder;
+        }
+
         private static readonly string[] _argumentParameterNames =
         {
             "arguments",
@@ -137,5 +151,6 @@ namespace MLS.WasmCodeRunner
                 ? $"--{parameterName.ToKebabCase()}"
                 : $"-{parameterName.ToLowerInvariant()}";
         }
+
     }
 }
