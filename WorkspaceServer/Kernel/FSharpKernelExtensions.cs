@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.Commands;
 using Microsoft.DotNet.Interactive.FSharp;
+using Microsoft.DotNet.Interactive.Rendering;
 using XPlot.Plotly;
 
 namespace WorkspaceServer.Kernel
@@ -22,7 +23,10 @@ namespace WorkspaceServer.Kernel
 {ReferenceFromType(typeof(IHtmlContent))}
 {ReferenceFromType(typeof(FSharpPocketViewTags))}
 {ReferenceFromType(typeof(PlotlyChart))}
+{ReferenceFromType(typeof(IKernel))}
+{ReferenceFromType(typeof(FSharpKernel))}
 open {typeof(FSharpPocketViewTags).FullName}
+open {typeof(PocketView).Namespace}
 open {typeof(PlotlyChart).Namespace}
 "))).Wait();
 
