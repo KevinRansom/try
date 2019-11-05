@@ -1098,15 +1098,21 @@ json
         public async Task Loads_native_dependencies_from_nugets()
         {
             using var kernel = CreateKernel(
-                Language.CSharp, 
+                Language.CSharp,
                 () => new NativeAssemblyLoadHelper());
+
+
+            using var events = kernel.KernelEvents.ToSubscribedList();
+
 
             var command = new SubmitCode(@"
 #r ""nuget:Microsoft.ML, 1.3.1""
 
+
 using Microsoft.ML;
 using Microsoft.ML.Data;
 using System;
+
 
 class IrisData
 {
@@ -1123,6 +1129,7 @@ class IrisData
     public float PetalWidth;
 }
 
+
 var data = new[]
 {
     new IrisData(1.4f, 1.3f, 2.5f, 4.5f),
@@ -1131,10 +1138,12 @@ var data = new[]
     new IrisData(3.9f, 5.3f, 1.5f, 6.5f),
 };
 
+
 MLContext mlContext = new MLContext();
 var pipeline = mlContext.Transforms
     .Concatenate(""Features"", ""SepalLength"", ""SepalWidth"", ""PetalLength"", ""PetalWidth"")
     .Append(mlContext.Clustering.Trainers.KMeans(""Features"", numberOfClusters: 2));
+
 
 try
 {
@@ -1146,18 +1155,20 @@ catch (Exception e)
     Console.WriteLine(e);
 }");
 
-            var result = await kernel.SendAsync(command);
 
-            using var events = result.KernelEvents.ToSubscribedList();
+            await kernel.SendAsync(command);
+
 
             events
                 .Should()
                 .ContainSingle<NuGetPackageAdded>();
 
+
             events
                 .Should()
                 .ContainSingle<StandardOutputValueProduced>(e => e.Value.As<string>().Contains("success"));
         }
+
 
         [Fact]
         public async Task Script_state_is_available_within_middleware_pipeline()
