@@ -66,7 +66,7 @@ namespace WorkspaceServer.Packaging
 
             var dotnet = new Dotnet(Directory);
 
-            var result = await dotnet.Build();
+            var result = await dotnet.Execute("msbuild -restore /t:WriteNugetAssemblyPaths /bl");
 
             if (result.ExitCode != 0)
             {
@@ -113,6 +113,42 @@ namespace WorkspaceServer.Packaging
                               .Concat(_kernel.ScriptOptions.MetadataReferences)
                               .Select(r => new FileInfo(r.Display))
                               .ToArray();
+        }
+
+        private Dictionary<string, List<ResolvedNugetPackageReference>> ResolvedReferences()
+        {
+            var nugetPathsFile = Directory.GetFiles("*.resolvedReferences.paths").SingleOrDefault();
+
+            if (nugetPathsFile == null)
+            {
+                return new Dictionary<string, List<ResolvedNugetPackageReference>>();
+            }
+
+            var nugetPackageLines = File.ReadAllText(Path.Combine(Directory.FullName, nugetPathsFile.FullName))
+                .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+            return nugetPackageLines
+                .Select(line => line.Split(','))
+                .Select(s =>
+                (
+                    packageName: s[0].Trim(),
+                    packageVersion: s[1].Trim(),
+                    assemblyPath: new FileInfo(s[2].Trim()),
+                    packageRoot: !string.IsNullOrWhiteSpace(s[3])
+                        ? new DirectoryInfo(s[3].Trim())
+                        : null))
+                .GroupBy(x =>
+                (
+                    x.packageName,
+                    x.packageVersion,
+                    x.packageRoot))
+                .Select(xs => new ResolvedNugetPackageReference(
+                    xs.Key.packageName,
+                    xs.Key.packageVersion,
+                    xs.Select(x => x.assemblyPath).ToArray(),
+                    xs.Key.packageRoot))
+                .GroupBy(r => r.PackageName)
+                .ToDictionary(r => r.Key, r => r.ToList(), StringComparer.OrdinalIgnoreCase);
         }
 
         private Dictionary<string, ResolvedNugetPackageReference> GetResolvedNugetReferences()
@@ -225,7 +261,7 @@ namespace s
   </Target>
 
   <Target Name='WriteNugetAssemblyPaths' 
-          DependsOnTargets='ResolvePackageAssets' 
+          DependsOnTargets='ResolvePackageAssets; ResolveReferences' 
           AfterTargets='PrepareForBuild'>
     <ItemGroup>
       <ReferenceLines Remove='@(ReferenceLines)' />
@@ -234,6 +270,15 @@ namespace s
     </ItemGroup>
     <WriteLinesToFile Lines='@(ReferenceLines)' 
                       File='$(MSBuildProjectFullPath).nuget.paths' 
+                      Overwrite='True' WriteOnlyWhenDifferent='True' />
+
+    <ItemGroup>
+      <ResolvedReferenceLines Remove='*' />
+      <ResolvedReferenceLines Include='%(ReferencePath.NugetPackageId),%(ReferencePath.NugetPackageVersion),%(ReferencePath.OriginalItemSpec)' />
+    </ItemGroup>
+
+    <WriteLinesToFile Lines='@(ResolvedReferenceLines)' 
+                      File='$(MSBuildProjectFullPath).resolvedReferences.paths' 
                       Overwrite='True' WriteOnlyWhenDifferent='True' />
   </Target>
 ";
