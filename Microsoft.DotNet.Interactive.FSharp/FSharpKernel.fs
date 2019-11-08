@@ -31,7 +31,7 @@ type FSharpKernel() =
     let parseReference text =
         FSharpDependencyManager.parsePackageReference [text]
         |> fst
-        |> List.head
+        |> List.tryHead
 
     let packageMessage dependency =
         let versionText = match dependency.Version with
@@ -45,32 +45,41 @@ type FSharpKernel() =
             script.DependencyAdding
             |> Event.add (fun (key, referenceText) ->
                 if key = "nuget" then
-                    let reference = parseReference referenceText
-                    let message = packageMessage reference
-                    let key = message
-                    messageMap.[key] <- message
-                    context.Publish(DisplayedValueProduced(message, context.Command, valueId=key))
+                    match parseReference referenceText with
+                    | Some ref ->
+                        let message = packageMessage ref
+                        let key = message
+                        messageMap.[key] <- message
+                        context.Publish(DisplayedValueProduced(message, context.Command, valueId=key))
+                    | _ -> ()
                 ())
 
             script.DependencyAdded
             |> Event.add (fun (key, referenceText) ->
                 if key = "nuget" then
-                    let reference = parseReference referenceText
-                    let key = packageMessage reference
-                    let message = messageMap.[key] + "done!"
-                    context.Publish(DisplayedValueUpdated(message, key))
-                    let packageRef = if reference.Version = "*" then NugetPackageReference(reference.Include)
-                                     else NugetPackageReference(reference.Include, packageVersion=reference.Version)
-                    context.Publish(NuGetPackageAdded(AddNugetPackage(packageRef), packageRef))
+                    match parseReference referenceText with
+                    | Some ref ->
+                        let key = packageMessage ref
+                        let message = messageMap.[key] + "done!"
+                        context.Publish(DisplayedValueUpdated(message, key))
+                        let packageRef =
+                            if ref.Version = "*" then
+                                NugetPackageReference(ref.Include)
+                            else
+                                NugetPackageReference(ref.Include, packageVersion=ref.Version)
+                        context.Publish(NuGetPackageAdded(AddNugetPackage(packageRef), packageRef))
+                    | None -> ()
                 ())
 
             script.DependencyFailed
             |> Event.add (fun (key, referenceText) ->
                 if key = "nuget" then
-                    let reference = parseReference referenceText
-                    let key = packageMessage reference
-                    let message = messageMap.[key] + "failed!"
-                    context.Publish(DisplayedValueUpdated(message, key))
+                    match parseReference referenceText with
+                    | Some ref ->
+                        let key = packageMessage ref
+                        let message = messageMap.[key] + "failed!"
+                        context.Publish(DisplayedValueUpdated(message, key))
+                    | None -> ()
                 ())
 
             let codeSubmissionReceived = CodeSubmissionReceived(codeSubmission.Code, codeSubmission)
