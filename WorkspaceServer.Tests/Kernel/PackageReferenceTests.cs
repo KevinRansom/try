@@ -16,7 +16,7 @@ namespace WorkspaceServer.Tests.Kernel
         [InlineData("nuget:PocketLogger, 1.2.3-beta")]
         public void Nuget_package_reference_correctly_parses_package_name(string value)
         {
-            NugetPackageReference.TryParse(value, out var reference);
+            PackageReference.TryParse(value, out var reference);
 
             reference.PackageName.Should().Be("PocketLogger");
         }
@@ -28,7 +28,7 @@ namespace WorkspaceServer.Tests.Kernel
         [InlineData("nuget:PocketLogger, 1.2.3-beta", "1.2.3-beta")]
         public void Nuget_package_reference_correctly_parses_package_version(string value, string expectedVersion)
         {
-            NugetPackageReference.TryParse(value, out var reference);
+            PackageReference.TryParse(value, out var reference);
 
             reference.PackageVersion.Should().Be(expectedVersion);
         }

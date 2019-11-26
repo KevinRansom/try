@@ -8,13 +8,16 @@ open System.Collections.Generic
 open System.IO
 open System.Threading
 open System.Threading.Tasks
-open FSharp.Compiler.Interactive.Shell
-open FSharp.Compiler.Scripting
-open FSharp.DependencyManager
+
 open Microsoft.DotNet.Interactive
 open Microsoft.DotNet.Interactive.Commands
 open Microsoft.DotNet.Interactive.Events
 open MLS.Agent.Tools
+
+open FSharp.Compiler.Interactive.Shell
+open FSharp.Compiler.Scripting
+open FSharp.DependencyManager
+
 
 type FSharpKernel() =
     inherit KernelBase(Name = "fsharp")
@@ -75,10 +78,10 @@ type FSharpKernel() =
                     | Some ref, _ ->
                         let packageRef =
                             if ref.Version = "*" then
-                                NugetPackageReference(ref.Include)
+                                PackageReference(ref.Include)
                             else
-                                NugetPackageReference(ref.Include, packageVersion=ref.Version)
-                        context.Publish(NuGetPackageAdded(AddNugetPackage(packageRef), packageRef))
+                                PackageReference(ref.Include, packageVersion=ref.Version)
+                        context.Publish(PackageAdded(AddPackage(packageRef)))
                     | _ -> ()
 
                     for key in packageInstallingMessages reference do

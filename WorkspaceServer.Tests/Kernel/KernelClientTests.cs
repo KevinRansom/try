@@ -246,7 +246,7 @@ namespace WorkspaceServer.Tests.Kernel
             await _kernelClient.Start();
 
             var gate = _io.OutputStream
-                .TakeUntilEvent<NuGetPackageAdded>(1.Minutes());
+                .TakeUntilEvent<PackageAdded>(1.Minutes());
 
             _io.WriteToInput(new SubmitCode(@"#r ""nuget:Microsoft.Spark, 0.4.0"""), 0);
 
@@ -255,7 +255,7 @@ namespace WorkspaceServer.Tests.Kernel
             _events
                 .Select(e => e["eventType"].Value<string>())
                 .Should()
-                .Contain(nameof(NuGetPackageAdded));
+                .Contain(nameof(PackageAdded));
         }
 
         public void Dispose()

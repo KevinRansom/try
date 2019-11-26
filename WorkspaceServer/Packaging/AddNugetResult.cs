@@ -13,7 +13,7 @@ namespace WorkspaceServer.Packaging
     {
         public AddNugetResult(
             bool succeeded,
-            NugetPackageReference requestedPackage,
+            PackageReference requestedPackage,
             IReadOnlyCollection<string> errors = null)
         {
             if (requestedPackage == null)

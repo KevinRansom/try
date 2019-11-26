@@ -13,8 +13,8 @@ namespace WorkspaceServer.Packaging
     {
         public AddNugetRestoreSourcesResult(
             bool succeeded,
-            NugetPackageReference requestedPackage,
-            IReadOnlyList<ResolvedNugetPackageReference> addedReferences = null,
+            PackageReference requestedPackage,
+            IReadOnlyList<ResolvedPackageReference> addedReferences = null,
             IReadOnlyCollection<string> errors = null) : base(succeeded, requestedPackage, errors)
         {
         }

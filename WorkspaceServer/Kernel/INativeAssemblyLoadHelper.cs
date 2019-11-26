@@ -4,13 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Microsoft.DotNet.Interactive;
 using WorkspaceServer.Packaging;
 
 namespace WorkspaceServer.Kernel
 {
     public interface INativeAssemblyLoadHelper : IDisposable
     {
-        void Handle(ResolvedNugetPackageReference reference);
+        void Handle(ResolvedPackageReference reference);
 
         void SetNativeLibraryProbingPaths(IReadOnlyList<DirectoryInfo> nativeLibraryProbingPaths);
     }
