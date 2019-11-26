@@ -7,6 +7,9 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Pocket;
+using WorkspaceServer.Kernel;
+using WorkspaceServer.Packaging;
+using Microsoft.DotNet.Interactive;
 
 namespace Microsoft.DotNet.Interactive
 {
@@ -15,8 +18,8 @@ namespace Microsoft.DotNet.Interactive
         private static readonly HashSet<DirectoryInfo> globalProbingPaths = new HashSet<DirectoryInfo>();
         private readonly HashSet<DirectoryInfo> _probingPaths = new HashSet<DirectoryInfo>();
 
-        private readonly Dictionary<string, ResolvedNugetPackageReference> _resolvers =
-            new Dictionary<string, ResolvedNugetPackageReference>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, ResolvedPackageReference> _resolvers =
+            new Dictionary<string, ResolvedPackageReference>(StringComparer.OrdinalIgnoreCase);
 
         public NativeAssemblyLoadHelper()
         {
@@ -32,7 +35,7 @@ namespace Microsoft.DotNet.Interactive
             }   
         }
 
-        public void Handle(ResolvedNugetPackageReference reference)
+        public void Handle(ResolvedPackageReference reference)
         {
             var assemblyFile = reference.AssemblyPaths.First();
 

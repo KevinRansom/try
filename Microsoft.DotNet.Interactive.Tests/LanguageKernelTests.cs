@@ -967,13 +967,13 @@ json
 
             events
                 .Should()
-                .ContainSingle(e => e is NuGetPackageAdded);
+                .ContainSingle(e => e is PackageAdded);
 
-            events.OfType<NuGetPackageAdded>()
+            events.OfType<PackageAdded>()
                   .Single()
                   .PackageReference
                   .Should()
-                  .BeEquivalentTo(new NugetPackageReference("Microsoft.Extensions.Logging", "2.2.0"));
+                  .BeEquivalentTo(new PackageReference("Microsoft.Extensions.Logging", "2.2.0"));
 
             if (language == Language.CSharp)
             {
@@ -981,7 +981,7 @@ json
                 events
                     .Should()
                     .ContainSingle<CommandHandled>(
-                        where: e => e.Command is AddNugetPackage);
+                        where: e => e.Command is AddPackage);
             }
 
 
@@ -992,7 +992,7 @@ json
         {
             var kernel = new CompositeKernel
             {
-                new CSharpKernel().UseNugetDirective()
+                new CSharpKernel()
             };
 
             var command = new SubmitCode("#r \"nuget:Microsoft.Extensions.Logging, 2.2.0\" \nMicrosoft.Extensions.Logging.ILogger logger = null;");
@@ -1138,7 +1138,7 @@ catch (Exception e)
 
             events
                 .Should()
-                .ContainSingle<NuGetPackageAdded>();
+                .ContainSingle<PackageAdded>();
 
             events
                 .Should()
