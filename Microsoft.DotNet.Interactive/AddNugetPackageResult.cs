@@ -12,11 +12,11 @@ namespace Microsoft.DotNet.Interactive
     {
         public AddNugetPackageResult(
             bool succeeded,
-            NugetPackageReference requestedPackage,
-            IReadOnlyList<ResolvedNugetPackageReference> addedReferences = null,
+            PackageReference requestedPackage,
+            IReadOnlyList<ResolvedPackageReference> addedReferences = null,
             IReadOnlyCollection<string> errors = null) : base(succeeded, requestedPackage, errors)
         {
-            AddedReferences = addedReferences ?? Array.Empty<ResolvedNugetPackageReference>();
+            AddedReferences = addedReferences ?? Array.Empty<ResolvedPackageReference>();
 
             if (Succeeded)
             {
@@ -26,7 +26,7 @@ namespace Microsoft.DotNet.Interactive
             }
         }
 
-        public IReadOnlyList<ResolvedNugetPackageReference> AddedReferences { get; }
+        public IReadOnlyList<ResolvedPackageReference> AddedReferences { get; }
 
         public string InstalledVersion { get; }
 
