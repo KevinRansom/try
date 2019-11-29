@@ -983,8 +983,6 @@ json
                     .ContainSingle<CommandHandled>(
                         where: e => e.Command is AddPackage);
             }
-
-
         }
 
         [Fact(Skip = "Should pass after #577 is resolved")]
