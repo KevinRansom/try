@@ -36,11 +36,13 @@ namespace Microsoft.DotNet.Interactive
 
         public IReadOnlyList<ResolvedPackageReference> ResolvedReferences { get; }
 
-        public IReadOnlyList<DirectoryInfo> NativeLibraryProbingPaths =>
-            ResolvedReferences
-                .SelectMany(path => path.ProbingPaths)
-                .Distinct()
-                .ToArray();
+        //public IReadOnlyList<DirectoryInfo> NativeLibraryProbingPaths =>
+        //    ResolvedReferences
+        //        .SelectMany(path => path.ProbingPaths)
+        //        .Distinct()
+        //        .ToArray();
+
+        public IReadOnlyList<string> NativeLibraryProbingPaths => Array.Empty<string>();
 
         public bool Succeeded { get; }
 
