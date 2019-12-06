@@ -24,7 +24,7 @@ using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.DotNet.Interactive.CSharp
 {
-    public class CSharpKernel : KernelBase, IExtensibleKernel
+    public class CSharpKernel : ScriptingKernelBase, IExtensibleKernel
     {
         internal const string DefaultKernelName = "csharp";
 
@@ -60,13 +60,11 @@ namespace Microsoft.DotNet.Interactive.CSharp
         {
             _cancellationSource = new CancellationTokenSource();
             Name = DefaultKernelName;
-            NativeAssemblyLoadHelper =new NativeAssemblyLoadHelper();
-            RegisterForDisposal(NativeAssemblyLoadHelper);
         }
 
         public ScriptState ScriptState { get; private set; }
 
-        internal void AddScriptReferences(IReadOnlyList<ResolvedPackageReference> assemblyPaths)
+        public override void AddScriptReferences(IReadOnlyList<ResolvedPackageReference> assemblyPaths)
         {
             var references = assemblyPaths
                              .SelectMany(r => r.AssemblyPaths)
@@ -374,7 +372,5 @@ namespace Microsoft.DotNet.Interactive.CSharp
         private bool HasReturnValue =>
             ScriptState != null &&
             (bool) _hasReturnValueMethod.Invoke(ScriptState.Script, null);
-
-        internal NativeAssemblyLoadHelper NativeAssemblyLoadHelper { get; }
     }
 }
